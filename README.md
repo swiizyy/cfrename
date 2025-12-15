@@ -2,7 +2,7 @@
 
 `cfrename` est un projet de CLI (outil en ligne de commande) visant à **standardiser le renommage et l’organisation de documents** à l’aide d’une **convention stricte** et d’une **configuration hiérarchique définie par l’utilisateur**.
 
-Le projet est actuellement en phase de conception et de structuration.
+Le projet dispose maintenant d'une première version fonctionnelle (MVP).
 
 ---
 
@@ -121,9 +121,34 @@ La configuration décrira :
 
 ---
 
+## 🚀 Installation et Utilisation
+
+Voir le fichier [USAGE.md](USAGE.md) pour les instructions complètes d'installation et d'utilisation.
+
+### Démarrage rapide
+
+```bash
+# Compiler le projet
+cargo build --release
+
+# Copier la configuration exemple
+mkdir -p ~/.config/cfrename
+cp config.example.toml ~/.config/cfrename/config.toml
+
+# Utiliser l'outil
+./target/release/cfrename <fichier>
+```
+
 ## 📌 Statut
 
-Projet personnel en cours de conception et d’implémentation progressive.
+MVP fonctionnel avec les fonctionnalités principales implémentées :
+- ✓ Interface CLI interactive
+- ✓ Navigation guidée par clavier
+- ✓ Configuration externe (TOML)
+- ✓ Support des entités conditionnelles
+- ✓ Génération de noms conformes à la convention
+- ✓ Prévisualisation et confirmation avant action
+- ✓ Création automatique des répertoires cibles
 
 ---
 

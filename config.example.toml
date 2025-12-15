@@ -1,0 +1,46 @@
+# Example configuration for cfrename
+# Copy this file to ~/.config/cfrename/config.toml and customize it
+
+[categories.administratif]
+name = "Administratif"
+target_directory = "~/Documents/Administratif"
+
+[categories.administratif.types.impots]
+name = "Impôts"
+descriptions = ["Avis", "Déclaration", "Justificatif"]
+require_entity = false
+
+[categories.administratif.types.banque]
+name = "Banque"
+descriptions = ["Relevé", "RIB", "Contrat"]
+require_entity = true
+entities = ["BNP", "Crédit Agricole", "Société Générale"]
+
+[categories.professionnel]
+name = "Professionnel"
+target_directory = "~/Documents/Professionnel"
+
+[categories.professionnel.types.travail]
+name = "Travail"
+descriptions = ["Contrat CDI", "Contrat CDD", "Avenant", "Fiche de paie"]
+require_entity = true
+entities = ["ACME", "TechCorp", "GlobalServices"]
+
+[categories.professionnel.types.formation]
+name = "Formation"
+descriptions = ["Attestation", "Certificat", "Programme"]
+require_entity = false
+
+[categories.medical]
+name = "Médical"
+target_directory = "~/Documents/Medical"
+
+[categories.medical.types.ordonnance]
+name = "Ordonnance"
+descriptions = ["Consultation", "Renouvellement", "Spécialiste"]
+require_entity = false
+
+[categories.medical.types.analyse]
+name = "Analyse"
+descriptions = ["Sang", "Radiologie", "Autres"]
+require_entity = false
