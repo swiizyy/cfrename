@@ -4,7 +4,7 @@ version = "0.2.0"
 edition = "2024"
 authors = ["swiizyy"]
 description = "CLI tool for standardizing file renaming and organization"
-license-file = "LICENSE"
+license = "MIT"
 repository = "https://github.com/swiizyy/cfrename"
 readme = "README.md"
 
