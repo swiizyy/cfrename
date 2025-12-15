@@ -78,6 +78,15 @@ Target: /Users/user/Documents/Professionnel/2024-11-15_TRAVAIL_TECHCORP_Contrat_
 The configuration file uses TOML format:
 
 ```toml
+# Date input formats (optional)
+# The first format is used as the default display
+# Output filenames always use YYYY-MM-DD
+date_formats = [
+    "%Y-%m-%d",    # YYYY-MM-DD
+    "%d/%m/%Y",    # DD/MM/YYYY
+    "%d-%m-%Y",    # DD-MM-YYYY
+]
+
 [categories.category_key]
 name = "Display Name"
 target_directory = "~/path/to/directory"  # Optional
@@ -112,8 +121,31 @@ Example: 2024-11-15_TRAVAIL_ACME_Contrat_CDI.pdf
 - ✓ Interactive guided navigation
 - ✓ Keyboard-driven selection
 - ✓ Strict validation (no free-form dangerous input)
+- ✓ Configurable date input formats (output always YYYY-MM-DD)
 - ✓ Preview before rename
 - ✓ Confirmation required
 - ✓ Automatic directory creation
 - ✓ Configuration-driven behavior
 - ✓ Support for conditional entity fields
+
+## Date Format Configuration
+
+You can configure which date formats are accepted for input while the output filename format remains fixed at YYYY-MM-DD:
+
+```toml
+date_formats = [
+    "%Y-%m-%d",    # YYYY-MM-DD (default display format)
+    "%d/%m/%Y",    # DD/MM/YYYY
+    "%d-%m-%Y",    # DD-MM-YYYY
+]
+```
+
+- The first format in the list is used as the default when prompting for dates
+- Users can enter dates in any of the configured formats
+- All output filenames will always use YYYY-MM-DD format regardless of input
+- If omitted, defaults to: `%Y-%m-%d`, `%d/%m/%Y`, `%d-%m-%Y`
+
+Common date format patterns:
+- `%Y` - 4-digit year (e.g., 2024)
+- `%m` - 2-digit month (01-12)
+- `%d` - 2-digit day (01-31)

@@ -7,6 +7,16 @@ use std::path::PathBuf;
 #[derive(Debug, Deserialize, Clone)]
 pub struct Config {
     pub categories: HashMap<String, Category>,
+    #[serde(default = "default_date_formats")]
+    pub date_formats: Vec<String>,
+}
+
+fn default_date_formats() -> Vec<String> {
+    vec![
+        "%Y-%m-%d".to_string(),
+        "%d/%m/%Y".to_string(),
+        "%d-%m-%Y".to_string(),
+    ]
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -47,5 +57,56 @@ impl Config {
     pub fn load_default() -> Result<Self> {
         let path = Self::default_path()?;
         Self::load(&path)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default_date_formats() {
+        let formats = default_date_formats();
+        assert_eq!(formats.len(), 3);
+        assert_eq!(formats[0], "%Y-%m-%d");
+        assert_eq!(formats[1], "%d/%m/%Y");
+        assert_eq!(formats[2], "%d-%m-%Y");
+    }
+
+    #[test]
+    fn test_config_with_custom_date_formats() {
+        let toml = r#"
+            date_formats = ["%d.%m.%Y", "%Y-%m-%d"]
+
+            [categories.test]
+            name = "Test"
+
+            [categories.test.types.doc]
+            name = "Document"
+            descriptions = ["Test"]
+            require_entity = false
+        "#;
+
+        let config: Config = toml::from_str(toml).unwrap();
+        assert_eq!(config.date_formats.len(), 2);
+        assert_eq!(config.date_formats[0], "%d.%m.%Y");
+        assert_eq!(config.date_formats[1], "%Y-%m-%d");
+    }
+
+    #[test]
+    fn test_config_without_date_formats_uses_defaults() {
+        let toml = r#"
+            [categories.test]
+            name = "Test"
+
+            [categories.test.types.doc]
+            name = "Document"
+            descriptions = ["Test"]
+            require_entity = false
+        "#;
+
+        let config: Config = toml::from_str(toml).unwrap();
+        assert_eq!(config.date_formats.len(), 3);
+        assert_eq!(config.date_formats[0], "%Y-%m-%d");
     }
 }

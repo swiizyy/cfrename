@@ -87,9 +87,11 @@ The codebase is organized into focused modules:
 
 ### `src/config.rs`
 Handles configuration loading and parsing from TOML files. Defines the hierarchical structure:
-- `Config`: Root configuration containing categories
+- `Config`: Root configuration containing categories and optional date input formats
 - `Category`: Contains document types and optional target directory
 - `DocumentType`: Defines descriptions, entity requirements, and available entities
+- Supports configurable date input formats while output always uses YYYY-MM-DD
+- Includes unit tests for configuration parsing and default values
 
 ### `src/naming.rs`
 Implements the filename generation logic:
@@ -101,7 +103,9 @@ Implements the filename generation logic:
 Provides the guided CLI interface:
 - `InteractiveSession`: Manages the step-by-step selection process
 - Uses dialoguer for interactive prompts with keyboard navigation
-- Enforces selection from configured options (no free-form input)
+- Enforces selection from configured options (no free-form input for categories/types/descriptions)
+- Supports multiple date input formats from configuration
+- Tries parsing dates with each configured format until successful
 - Returns a `RenameRequest` with all collected information
 
 ### `src/operations.rs`

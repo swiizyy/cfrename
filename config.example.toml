@@ -1,6 +1,16 @@
 # Example configuration for cfrename
 # Copy this file to ~/.config/cfrename/config.toml and customize it
 
+# Date input formats (optional)
+# Defines the formats accepted when entering dates interactively
+# The first format is used as the default display format
+# Note: Output filenames will ALWAYS use YYYY-MM-DD format regardless of input
+date_formats = [
+    "%Y-%m-%d",    # YYYY-MM-DD (ISO format)
+    "%d/%m/%Y",    # DD/MM/YYYY (European format)
+    "%d-%m-%Y",    # DD-MM-YYYY
+]
+
 [categories.administratif]
 name = "Administratif"
 target_directory = "~/Documents/Administratif"

@@ -124,15 +124,33 @@ impl InteractiveSession {
 
     fn input_date(&self) -> Result<NaiveDate> {
         let today = chrono::Local::now().date_naive();
-        let default_date = today.format("%Y-%m-%d").to_string();
+
+        // Use the first format for the default display
+        let default_format = self.config.date_formats.first()
+            .map(|s| s.as_str())
+            .unwrap_or("%Y-%m-%d");
+        let default_date = today.format(default_format).to_string();
+
+        // Build prompt with all accepted formats
+        let formats_display = self.config.date_formats.join(", ");
+        let prompt = format!("Enter date ({})", formats_display);
 
         let date_str: String = Input::with_theme(&ColorfulTheme::default())
-            .with_prompt("Enter date (YYYY-MM-DD)")
+            .with_prompt(&prompt)
             .default(default_date)
             .interact_text()?;
 
-        NaiveDate::parse_from_str(&date_str, "%Y-%m-%d")
-            .context("Invalid date format. Expected YYYY-MM-DD")
+        // Try to parse with each configured format
+        for format in &self.config.date_formats {
+            if let Ok(date) = NaiveDate::parse_from_str(&date_str, format) {
+                return Ok(date);
+            }
+        }
+
+        anyhow::bail!(
+            "Invalid date format. Expected one of: {}",
+            formats_display
+        )
     }
 }
 
