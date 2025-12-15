@@ -1,9 +1,12 @@
 [package]
 name = "cfrename"
 version = "0.1.0"
-edition = "2021"
-authors = ["xmac"]
+edition = "2024"
+authors = ["swiizyy"]
 description = "CLI tool for standardizing file renaming and organization"
+license-file = "LICENSE"
+repository = "https://github.com/swiizyy/cfrename"
+readme = "README.md"
 
 [dependencies]
 clap = { version = "4.5", features = ["derive"] }
