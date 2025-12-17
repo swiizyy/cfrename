@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-# [0.3.0] - (2025-12-17)
+# [0.4.0](https://github.com/swiizyy/cfrename/compare/v0.3.0...v0.4.0) - (2025-12-17)
+
+## 🚀 Features
+
+- Add automatic default config creation with user prompt ([e327df0](https://github.com/swiizyy/cfrename/commit/e327df085f83edcc7a68eaf089ba13b3b56e51ee))
+
+# [0.3.0](https://github.com/swiizyy/cfrename/tree/v0.3.0) - (2025-12-17)
 
 ## 📝 Documentation
 
