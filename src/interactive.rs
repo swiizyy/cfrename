@@ -4,6 +4,7 @@
 //! users through the document renaming process step by step.
 
 use crate::config::{Config, DocumentType};
+use crate::i18n::Messages;
 use anyhow::{Context, Result};
 use chrono::NaiveDate;
 use dialoguer::{theme::ColorfulTheme, Input, Select};
@@ -14,6 +15,7 @@ use dialoguer::{theme::ColorfulTheme, Input, Select};
 /// category, document type, description, entity (if required), and date.
 pub struct InteractiveSession {
     config: Config,
+    messages: Messages,
 }
 
 impl InteractiveSession {
@@ -24,7 +26,8 @@ impl InteractiveSession {
     /// * `config` - Configuration defining categories, types, and options
     #[must_use]
     pub fn new(config: Config) -> Self {
-        Self { config }
+        let messages = Messages::for_language(config.language);
+        Self { config, messages }
     }
 
     /// Runs the interactive session and collects rename information.
@@ -47,20 +50,20 @@ impl InteractiveSession {
     /// - Configuration is invalid (empty categories, etc.)
     /// - Date input is invalid
     pub fn run(&self) -> Result<RenameRequest> {
-        println!("\n=== cfrename - File Renaming Tool ===\n");
+        println!("\n{}\n", self.messages.app_title);
 
         let category_key = self.select_category()?;
         let category = self.config.categories.get(&category_key)
-            .context("Selected category not found")?;
+            .context(self.messages.error_category_not_found)?;
 
         let type_key = self.select_type(&category_key)?;
         let doc_type = category.types.get(&type_key)
-            .context("Selected type not found")?;
+            .context(self.messages.error_type_not_found)?;
 
-        let description = Self::select_description(doc_type)?;
+        let description = self.select_description(doc_type)?;
 
         let entity = if doc_type.require_entity {
-            Some(Self::select_entity(doc_type)?)
+            Some(self.select_entity(doc_type)?)
         } else {
             None
         };
@@ -83,7 +86,7 @@ impl InteractiveSession {
             .collect();
 
         if categories.is_empty() {
-            anyhow::bail!("No categories defined in configuration");
+            anyhow::bail!(self.messages.error_no_categories);
         }
 
         let display: Vec<String> = categories.iter()
@@ -91,7 +94,7 @@ impl InteractiveSession {
             .collect();
 
         let selection = Select::with_theme(&ColorfulTheme::default())
-            .with_prompt("Select category")
+            .with_prompt(self.messages.prompt_select_category)
             .items(&display)
             .default(0)
             .interact()?;
@@ -101,7 +104,7 @@ impl InteractiveSession {
 
     fn select_type(&self, category_key: &str) -> Result<String> {
         let category = self.config.categories.get(category_key)
-            .context("Category not found")?;
+            .context(self.messages.error_category_not_found)?;
 
         let types: Vec<(String, String)> = category.types
             .iter()
@@ -109,7 +112,7 @@ impl InteractiveSession {
             .collect();
 
         if types.is_empty() {
-            anyhow::bail!("No document types defined for this category");
+            anyhow::bail!(self.messages.error_no_types);
         }
 
         let display: Vec<String> = types.iter()
@@ -117,7 +120,7 @@ impl InteractiveSession {
             .collect();
 
         let selection = Select::with_theme(&ColorfulTheme::default())
-            .with_prompt("Select document type")
+            .with_prompt(self.messages.prompt_select_type)
             .items(&display)
             .default(0)
             .interact()?;
@@ -125,13 +128,13 @@ impl InteractiveSession {
         Ok(types[selection].0.clone())
     }
 
-    fn select_description(doc_type: &DocumentType) -> Result<String> {
+    fn select_description(&self, doc_type: &DocumentType) -> Result<String> {
         if doc_type.descriptions.is_empty() {
-            anyhow::bail!("No descriptions defined for this document type");
+            anyhow::bail!(self.messages.error_no_descriptions);
         }
 
         let selection = Select::with_theme(&ColorfulTheme::default())
-            .with_prompt("Select description")
+            .with_prompt(self.messages.prompt_select_description)
             .items(&doc_type.descriptions)
             .default(0)
             .interact()?;
@@ -139,16 +142,16 @@ impl InteractiveSession {
         Ok(doc_type.descriptions[selection].clone())
     }
 
-    fn select_entity(doc_type: &DocumentType) -> Result<String> {
+    fn select_entity(&self, doc_type: &DocumentType) -> Result<String> {
         let entities = doc_type.entities.as_ref()
-            .context("No entities defined for this document type")?;
+            .context(self.messages.error_no_entities)?;
 
         if entities.is_empty() {
-            anyhow::bail!("No entities defined for this document type");
+            anyhow::bail!(self.messages.error_no_entities);
         }
 
         let selection = Select::with_theme(&ColorfulTheme::default())
-            .with_prompt("Select entity")
+            .with_prompt(self.messages.prompt_select_entity)
             .items(entities)
             .default(0)
             .interact()?;
@@ -166,7 +169,7 @@ impl InteractiveSession {
 
         // Build prompt with all accepted formats
         let formats_display = self.config.date_formats.join(", ");
-        let prompt = format!("Enter date ({formats_display})");
+        let prompt = format!("{} ({formats_display})", self.messages.prompt_enter_date);
 
         let date_str: String = Input::with_theme(&ColorfulTheme::default())
             .with_prompt(&prompt)
@@ -181,7 +184,8 @@ impl InteractiveSession {
         }
 
         anyhow::bail!(
-            "Invalid date format. Expected one of: {formats_display}"
+            "{} {formats_display}",
+            self.messages.error_invalid_date
         )
     }
 }

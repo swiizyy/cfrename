@@ -1,4 +1,5 @@
 mod config;
+mod i18n;
 mod interactive;
 mod naming;
 mod operations;
@@ -26,18 +27,21 @@ fn main() -> Result<()> {
     } else if let Ok(config) = config::Config::load_default() {
         config
     } else {
-        eprintln!("Error: Configuration file not found.");
-        eprintln!("Expected location: {}", config::Config::default_path()?.display());
-        eprintln!("\nPlease create a configuration file. See the example configuration.");
+        let messages = i18n::Messages::for_language(i18n::Language::default());
+        eprintln!("{}", messages.error_config_not_found);
+        eprintln!("{} {}", messages.error_expected_location, config::Config::default_path()?.display());
+        eprintln!("\n{}", messages.error_create_config);
         std::process::exit(1);
     };
 
+    let messages = i18n::Messages::for_language(config.language);
+
     if !cli.file.exists() {
-        anyhow::bail!("File does not exist: {}", cli.file.display());
+        anyhow::bail!("{} {}", messages.error_file_not_exist, cli.file.display());
     }
 
     if !cli.file.is_file() {
-        anyhow::bail!("Path is not a file: {}", cli.file.display());
+        anyhow::bail!("{} {}", messages.error_not_a_file, cli.file.display());
     }
 
     let session = interactive::InteractiveSession::new(config.clone());
@@ -63,13 +67,13 @@ fn main() -> Result<()> {
         resolved_target.as_deref(),
     );
 
-    let operation = operations::FileOperation::new(cli.file, target_path);
+    let operation = operations::FileOperation::new(cli.file, target_path, messages);
     operation.preview();
 
-    if operations::FileOperation::confirm()? {
+    if operation.confirm()? {
         operation.execute()?;
     } else {
-        println!("Operation cancelled.");
+        println!("{}", messages.operation_cancelled);
     }
 
     Ok(())

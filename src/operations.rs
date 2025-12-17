@@ -6,6 +6,7 @@
 //! - Actual file renaming with validation
 //! - Automatic directory creation
 
+use crate::i18n::Messages;
 use anyhow::{Context, Result};
 use dialoguer::{theme::ColorfulTheme, Confirm};
 use std::fs;
@@ -18,6 +19,7 @@ use std::path::{Path, PathBuf};
 pub struct FileOperation {
     source: PathBuf,
     target: PathBuf,
+    messages: Messages,
 }
 
 impl FileOperation {
@@ -27,18 +29,24 @@ impl FileOperation {
     ///
     /// * `source` - Source file path
     /// * `target` - Target file path (may include new directory)
+    /// * `messages` - Localized messages for output
     #[must_use]
-    pub fn new(source: PathBuf, target: PathBuf) -> Self {
-        Self { source, target }
+    #[allow(clippy::large_types_passed_by_value)]
+    pub fn new(source: PathBuf, target: PathBuf, messages: Messages) -> Self {
+        Self {
+            source,
+            target,
+            messages,
+        }
     }
 
     /// Displays a preview of the rename operation.
     ///
     /// Shows the source and target paths to the user before confirmation.
     pub fn preview(&self) {
-        println!("\n=== Rename Preview ===");
-        println!("Source: {}", self.source.display());
-        println!("Target: {}", self.target.display());
+        println!("\n{}", self.messages.preview_title);
+        println!("{} {}", self.messages.preview_source, self.source.display());
+        println!("{} {}", self.messages.preview_target, self.target.display());
         println!();
     }
 
@@ -51,9 +59,9 @@ impl FileOperation {
     /// # Errors
     ///
     /// Returns an error if the confirmation dialog fails
-    pub fn confirm() -> Result<bool> {
+    pub fn confirm(&self) -> Result<bool> {
         let confirmed = Confirm::with_theme(&ColorfulTheme::default())
-            .with_prompt("Proceed with rename?")
+            .with_prompt(self.messages.prompt_confirm_rename)
             .default(false)
             .interact()?;
 
@@ -99,7 +107,7 @@ impl FileOperation {
                 )
             })?;
 
-        println!("\n✓ File renamed successfully!");
+        println!("\n{}", self.messages.success_renamed);
         println!("  → {}", self.target.display());
 
         Ok(())

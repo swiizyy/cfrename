@@ -4,6 +4,7 @@
 //! the document organization structure, including categories, types,
 //! descriptions, entities, and date formats.
 
+use crate::i18n::Language;
 use anyhow::{Context, Result};
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -27,6 +28,12 @@ pub struct Config {
     /// Optional base path for document organization
     /// If set, relative category paths will be combined with this base path
     pub base_path: Option<String>,
+
+    /// Language for user interface
+    /// Supported: "english" (or "en"), "french" (or "fr")
+    /// Default: English
+    #[serde(default)]
+    pub language: Language,
 }
 
 /// Returns the default date formats if none are specified in configuration.

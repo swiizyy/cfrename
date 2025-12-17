@@ -5,6 +5,11 @@
 # GLOBAL SETTINGS
 # =============================================================================
 
+# Language for user interface (optional)
+# Supported values: "english" (or "en"), "french" (or "fr")
+# Default: english
+language = "english"
+
 # Base path for all document organization (optional)
 # If set, category target_directory paths will be relative to this base path
 # Supports tilde (~) expansion for home directory

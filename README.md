@@ -92,6 +92,7 @@ The tool's behavior is entirely driven by an external configuration file.
 ```
 
 The configuration defines:
+- Language (English or French)
 - Base path for document organization (optional)
 - Categories
 - Document types
@@ -104,6 +105,7 @@ The configuration defines:
 
 ## ⚙️ Features
 
+- **Multilingual interface** - English and French support
 - Interactive CLI
 - Keyboard navigation
 - Guided hierarchical selection
@@ -131,7 +133,7 @@ mkdir -p ~/.config/cfrename
 cp config.example.toml ~/.config/cfrename/config.toml
 
 # Edit the configuration to match your needs
-# Set base_path to your documents folder and customize categories
+# Set language (english/french), base_path, and customize categories
 nano ~/.config/cfrename/config.toml
 
 # Use the tool
@@ -153,6 +155,7 @@ cfrename ~/Downloads/document.pdf --config /path/to/config.toml
 ## 📌 Status
 
 Functional MVP with core features implemented:
+- ✓ Multilingual support (English/French)
 - ✓ Interactive CLI interface
 - ✓ Guided keyboard navigation
 - ✓ External configuration (TOML)
@@ -161,6 +164,7 @@ Functional MVP with core features implemented:
 - ✓ Preview and confirmation before action
 - ✓ Automatic target directory creation
 - ✓ Configurable date input formats
+- ✓ Base path support for organized file structure
 
 ---
 

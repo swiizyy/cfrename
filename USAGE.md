@@ -262,6 +262,24 @@ Operation cancelled.
 
 The configuration file uses TOML format with the following structure:
 
+### Language (optional)
+
+```toml
+language = "english"  # or "french" (or "en", "fr")
+```
+
+- Sets the user interface language
+- Supported values:
+  - English: `"english"`, `"en"`
+  - French: `"french"`, `"fr"`, `"français"`, `"francais"`
+- Default: English
+- Affects all prompts, messages, and output
+
+**Benefits:**
+- Native language support for better user experience
+- All messages translated (prompts, errors, success messages)
+- Easy to switch between languages
+
 ### Base path (optional)
 
 ```toml
@@ -330,6 +348,7 @@ entities = ["Entity1", "Entity2"]  # Required if require_entity = true
 
 ```toml
 # Global settings
+language = "english"  # or "french"
 base_path = "~/Documents"
 date_formats = ["%Y-%m-%d", "%d/%m/%Y"]
 
@@ -406,6 +425,13 @@ Examples:
 ---
 
 ## Features
+
+### Multilingual support
+
+- ✓ English and French interface
+- ✓ All prompts, messages, and output localized
+- ✓ Easy language switching in configuration
+- ✓ More languages can be added in the future
 
 ### Interactive guided navigation
 
@@ -564,6 +590,12 @@ done
 ---
 
 ## Tips and Best Practices
+
+### Language
+
+- Set your preferred language in the configuration file
+- Language can be changed at any time by editing the config
+- Both English and French are fully supported
 
 ### Organization
 
