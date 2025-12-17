@@ -1,157 +1,241 @@
 # cfrename
 
-`cfrename` est un projet de CLI (outil en ligne de commande) visant à **standardiser le renommage et l’organisation de documents** à l’aide d’une **convention stricte** et d’une **configuration hiérarchique définie par l’utilisateur**.
+`cfrename` is a CLI (command-line) tool designed to **standardize file renaming and organization** using a **strict naming convention** and **user-defined hierarchical configuration**.
 
-Le projet dispose maintenant d'une première version fonctionnelle (MVP).
+The project now has a functional first version (MVP).
 
----
-
-## 🎯 Objectif
-
-L’objectif de `cfrename` est de fournir un outil fiable et durable permettant de :
-
-- Produire des noms de fichiers cohérents et non ambigus  
-- Appliquer une convention de nommage unique et explicite  
-- Réduire les erreurs humaines liées au renommage manuel  
-- Séparer clairement les règles métier de l’implémentation  
-- Construire un système compréhensible et maintenable dans le temps  
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Rust](https://img.shields.io/badge/rust-2024-orange.svg)](https://www.rust-lang.org)
 
 ---
 
-## 🧠 Philosophie du projet
+## 🎯 Objective
 
-Le projet repose sur quelques principes simples :
+The goal of `cfrename` is to provide a reliable and durable tool that:
 
-- **La configuration décrit les règles**  
-  Les catégories, types, descriptions et contraintes ne sont jamais codés en dur.
-
-- **Aucune supposition implicite**  
-  Chaque information nécessaire est explicitement demandée ou définie.
-
-- **Hiérarchie avant automatisme**  
-  Les documents sont classés selon une structure logique et navigable.
-
-- **Durabilité**  
-  Les noms produits doivent rester lisibles et compréhensibles dans plusieurs années.
+- Produces consistent and unambiguous filenames
+- Applies a unique and explicit naming convention
+- Reduces human errors related to manual renaming
+- Clearly separates business rules from implementation
+- Builds a system that is understandable and maintainable over time
 
 ---
 
-## 🏷️ Convention de nommage cible
+## 🧠 Project Philosophy
 
-### Format standard
+The project is built on a few simple principles:
 
-```
-AAAA-MM-JJ_TYPE_DESCRIPTION.ext
-```
+- **Configuration describes the rules**
+  Categories, types, descriptions, and constraints are never hardcoded.
 
-Exemples :
-```
-2024-11-15_IMPOTS_Avis.pdf
-2023-06-01_BANQUE_Releve.pdf
-```
+- **No implicit assumptions**
+  Every piece of necessary information is explicitly requested or defined.
 
-### Format étendu avec entité
+- **Hierarchy before automation**
+  Documents are classified according to a logical and navigable structure.
 
-Certains documents sont liés à une entité externe (entreprise, banque, organisme).
-
-```
-AAAA-MM-JJ_TYPE_ENTITE_DESCRIPTION.ext
-```
-
-Exemples :
-```
-2025-10-05_TRAVAIL_ACME_Contrat_CDI.pdf
-2023-03-15_BANQUE_BNP_Releve.pdf
-```
-
-L’inclusion de l’entité dépend du type de document et est définie par la configuration.
+- **Durability**
+  Generated filenames must remain readable and understandable years from now.
 
 ---
 
-## 🗂️ Modèle d’organisation prévu
+## 🏷️ Target Naming Convention
+
+### Standard format
 
 ```
-Catégorie
+YYYY-MM-DD_TYPE_DESCRIPTION.ext
+```
+
+Examples:
+```
+2024-11-15_TAX_Notice.pdf
+2023-06-01_BANK_Statement.pdf
+```
+
+### Extended format with entity
+
+Some documents are linked to an external entity (company, bank, organization).
+
+```
+YYYY-MM-DD_TYPE_ENTITY_DESCRIPTION.ext
+```
+
+Examples:
+```
+2025-10-05_WORK_ACME_Contract_Permanent.pdf
+2023-03-15_BANK_BNP_Statement.pdf
+```
+
+The inclusion of the entity depends on the document type and is defined by the configuration.
+
+---
+
+## 🗂️ Organizational Model
+
+```
+Category
  └── Type
       └── Description
 ```
 
-La navigation doit être guidée, sans saisie libre dangereuse.
+Navigation is guided, without dangerous free-form input.
 
 ---
 
-## 🧾 Configuration (prévue)
+## 🧾 Configuration
 
-Le comportement de l’outil sera entièrement piloté par un fichier de configuration externe.
+The tool's behavior is entirely driven by an external configuration file.
 
 ```
 ~/.config/cfrename/config.toml
 ```
 
-La configuration décrira :
-- les catégories
-- les types de documents
-- les descriptions autorisées
-- les dossiers cibles
-- les champs requis (ex : entité obligatoire)
+The configuration defines:
+- Categories
+- Document types
+- Allowed descriptions
+- Target directories
+- Required fields (e.g., mandatory entity)
+- Date input formats (output always uses YYYY-MM-DD)
 
 ---
 
-## ⚙️ Fonctionnalités prévues
+## ⚙️ Features
 
-- CLI interactive
-- Navigation clavier
-- Sélection hiérarchique guidée
-- Validation stricte des entrées
-- Génération sécurisée des noms
-- Confirmation avant action
-- Comportement déterministe
-
----
-
-## 🛣️ Roadmap (résumé)
-
-1. Modèle documentaire et convention de nommage  
-2. Configuration externe  
-3. Interface CLI guidée  
-4. Support des entités conditionnelles  
-5. Sécurité et confirmations  
-6. Organisation automatique des fichiers  
-7. Robustesse et maintenabilité  
+- Interactive CLI
+- Keyboard navigation
+- Guided hierarchical selection
+- Strict input validation
+- Secure filename generation
+- Pre-action confirmation
+- Deterministic behavior
+- Configurable date input formats (while output remains standardized)
+- Automatic directory creation
 
 ---
 
-## 🚀 Installation et Utilisation
+## 🚀 Installation and Usage
 
-Voir le fichier [USAGE.md](USAGE.md) pour les instructions complètes d'installation et d'utilisation.
+See the [USAGE.md](USAGE.md) file for complete installation and usage instructions.
 
-### Démarrage rapide
+### Quick Start
 
 ```bash
-# Compiler le projet
+# Build the project
 cargo build --release
 
-# Copier la configuration exemple
+# Copy the example configuration
 mkdir -p ~/.config/cfrename
 cp config.example.toml ~/.config/cfrename/config.toml
 
-# Utiliser l'outil
-./target/release/cfrename <fichier>
+# Edit the configuration to match your needs
+nano ~/.config/cfrename/config.toml
+
+# Use the tool
+./target/release/cfrename <file>
 ```
 
-## 📌 Statut
+### Example Usage
 
-MVP fonctionnel avec les fonctionnalités principales implémentées :
-- ✓ Interface CLI interactive
-- ✓ Navigation guidée par clavier
-- ✓ Configuration externe (TOML)
-- ✓ Support des entités conditionnelles
-- ✓ Génération de noms conformes à la convention
-- ✓ Prévisualisation et confirmation avant action
-- ✓ Création automatique des répertoires cibles
+```bash
+# Rename a document interactively
+cfrename ~/Downloads/document.pdf
+
+# Use a custom configuration file
+cfrename ~/Downloads/document.pdf --config /path/to/config.toml
+```
 
 ---
 
-## 📜 Licence
+## 📌 Status
 
-Projet personnel. Usage libre pour un usage privé.
+Functional MVP with core features implemented:
+- ✓ Interactive CLI interface
+- ✓ Guided keyboard navigation
+- ✓ External configuration (TOML)
+- ✓ Support for conditional entities
+- ✓ Convention-compliant filename generation
+- ✓ Preview and confirmation before action
+- ✓ Automatic target directory creation
+- ✓ Configurable date input formats
+
+---
+
+## 🛣️ Roadmap Summary
+
+1. ✓ Document model and naming convention
+2. ✓ External configuration
+3. ✓ Guided CLI interface
+4. ✓ Support for conditional entities
+5. ✓ Security and confirmations
+6. ✓ Automatic file organization
+7. Ongoing: Robustness and maintainability improvements
+
+---
+
+## 📚 Documentation
+
+- [USAGE.md](USAGE.md) - Detailed usage guide with examples
+- [CLAUDE.md](CLAUDE.md) - Development guidelines for contributors
+- [CHANGELOG.md](CHANGELOG.md) - Version history and changes
+- [config.example.toml](config.example.toml) - Example configuration file
+
+---
+
+## 🤝 Contributing
+
+This is a personal project, but contributions, suggestions, and feedback are welcome!
+
+Please ensure that any contributions adhere to the project's core philosophy:
+- Keep business rules in configuration, not code
+- Maintain strict separation of concerns
+- Avoid implicit assumptions
+- Write clear, maintainable code
+
+---
+
+## 📜 License
+
+MIT License - Free for personal and commercial use.
+
+---
+
+## 🔧 Development
+
+```bash
+# Build
+cargo build
+
+# Build release
+cargo build --release
+
+# Run
+cargo run -- <file>
+
+# Run with custom config
+cargo run -- <file> --config config.example.toml
+
+# Test
+cargo test
+
+# Test specific test
+cargo test <test_name>
+
+# Check without building
+cargo check
+```
+
+---
+
+## 💡 Design Principles
+
+The codebase is organized into focused modules:
+
+- **config.rs** - Configuration loading and parsing
+- **interactive.rs** - CLI interaction layer
+- **naming.rs** - Filename generation logic
+- **operations.rs** - File system operations
+- **main.rs** - Application entry point
+
+All document categories, types, descriptions, and entities are configuration-driven. The implementation maintains strict separation between business rules and technical implementation.

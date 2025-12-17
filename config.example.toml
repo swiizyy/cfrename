@@ -11,46 +11,117 @@ date_formats = [
     "%d-%m-%Y",    # DD-MM-YYYY
 ]
 
-[categories.administratif]
-name = "Administratif"
-target_directory = "~/Documents/Administratif"
+# ============================================================================
+# ADMINISTRATIVE CATEGORY
+# ============================================================================
 
-[categories.administratif.types.impots]
-name = "Impôts"
-descriptions = ["Avis", "Déclaration", "Justificatif"]
+[categories.administrative]
+name = "Administrative"
+target_directory = "~/Documents/Administrative"
+
+# Tax documents
+[categories.administrative.types.tax]
+name = "Tax"
+descriptions = ["Notice", "Declaration", "Receipt"]
 require_entity = false
 
-[categories.administratif.types.banque]
-name = "Banque"
-descriptions = ["Relevé", "RIB", "Contrat"]
+# Bank documents
+[categories.administrative.types.bank]
+name = "Bank"
+descriptions = ["Statement", "IBAN", "Contract"]
 require_entity = true
-entities = ["BNP", "Crédit Agricole", "Société Générale"]
+entities = ["BNP", "Credit Agricole", "Societe Generale"]
 
-[categories.professionnel]
-name = "Professionnel"
-target_directory = "~/Documents/Professionnel"
+# Insurance documents
+[categories.administrative.types.insurance]
+name = "Insurance"
+descriptions = ["Policy", "Claim", "Certificate"]
+require_entity = true
+entities = ["AXA", "Allianz", "Generali"]
 
-[categories.professionnel.types.travail]
-name = "Travail"
-descriptions = ["Contrat CDI", "Contrat CDD", "Avenant", "Fiche de paie"]
+# Utilities
+[categories.administrative.types.utilities]
+name = "Utilities"
+descriptions = ["Bill", "Contract", "Statement"]
+require_entity = true
+entities = ["Electricity", "Water", "Gas", "Internet"]
+
+# ============================================================================
+# PROFESSIONAL CATEGORY
+# ============================================================================
+
+[categories.professional]
+name = "Professional"
+target_directory = "~/Documents/Professional"
+
+# Work documents
+[categories.professional.types.work]
+name = "Work"
+descriptions = ["Permanent Contract", "Fixed-Term Contract", "Amendment", "Payslip"]
 require_entity = true
 entities = ["ACME", "TechCorp", "GlobalServices"]
 
-[categories.professionnel.types.formation]
-name = "Formation"
-descriptions = ["Attestation", "Certificat", "Programme"]
+# Training documents
+[categories.professional.types.training]
+name = "Training"
+descriptions = ["Certificate", "Diploma", "Program"]
 require_entity = false
+
+# Business documents
+[categories.professional.types.business]
+name = "Business"
+descriptions = ["Invoice", "Quote", "Purchase Order"]
+require_entity = true
+entities = ["Client A", "Client B", "Client C"]
+
+# ============================================================================
+# MEDICAL CATEGORY
+# ============================================================================
 
 [categories.medical]
-name = "Médical"
+name = "Medical"
 target_directory = "~/Documents/Medical"
 
-[categories.medical.types.ordonnance]
-name = "Ordonnance"
-descriptions = ["Consultation", "Renouvellement", "Spécialiste"]
+# Prescriptions
+[categories.medical.types.prescription]
+name = "Prescription"
+descriptions = ["Consultation", "Renewal", "Specialist"]
 require_entity = false
 
-[categories.medical.types.analyse]
-name = "Analyse"
-descriptions = ["Sang", "Radiologie", "Autres"]
+# Lab results
+[categories.medical.types.lab]
+name = "Lab"
+descriptions = ["Blood Test", "Radiology", "Other"]
+require_entity = false
+
+# Medical reports
+[categories.medical.types.report]
+name = "Report"
+descriptions = ["Annual Checkup", "Specialist Visit", "Emergency"]
+require_entity = false
+
+# ============================================================================
+# PERSONAL CATEGORY
+# ============================================================================
+
+[categories.personal]
+name = "Personal"
+target_directory = "~/Documents/Personal"
+
+# ID documents
+[categories.personal.types.id]
+name = "ID"
+descriptions = ["Passport", "ID Card", "Driver License"]
+require_entity = false
+
+# Receipts
+[categories.personal.types.receipt]
+name = "Receipt"
+descriptions = ["Purchase", "Warranty", "Return"]
+require_entity = false
+
+# Legal documents
+[categories.personal.types.legal]
+name = "Legal"
+descriptions = ["Contract", "Power of Attorney", "Will"]
 require_entity = false
