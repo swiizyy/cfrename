@@ -43,7 +43,7 @@ fn main() -> Result<()> {
         anyhow::bail!("Path is not a file: {}", cli.file.display());
     }
 
-    let session = interactive::InteractiveSession::new(config);
+    let session = interactive::InteractiveSession::new(config.clone());
     let request = session.run()?;
 
     let extension = naming::extract_extension(&cli.file);
@@ -56,10 +56,14 @@ fn main() -> Result<()> {
     );
 
     let new_filename = filename_builder.build();
+
+    // Resolve the target directory using base_path if configured
+    let resolved_target = config.resolve_target_path(request.target_directory.as_deref());
+
     let target_path = operations::build_target_path(
         &cli.file,
         &new_filename,
-        request.target_directory.as_deref(),
+        resolved_target.as_deref(),
     );
 
     let operation = operations::FileOperation::new(cli.file, target_path);

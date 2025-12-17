@@ -9,6 +9,7 @@ pub struct Config {
     pub categories: HashMap<String, Category>,
     #[serde(default = "default_date_formats")]
     pub date_formats: Vec<String>,
+    pub base_path: Option<String>,
 }
 
 fn default_date_formats() -> Vec<String> {
@@ -57,6 +58,42 @@ impl Config {
     pub fn load_default() -> Result<Self> {
         let path = Self::default_path()?;
         Self::load(&path)
+    }
+
+    /// Resolves a target directory, considering the base_path if set.
+    ///
+    /// If base_path is set and target_directory is a relative path,
+    /// they are combined. If target_directory is absolute or base_path
+    /// is not set, target_directory is returned as-is.
+    pub fn resolve_target_path(&self, target_directory: Option<&str>) -> Option<String> {
+        match (self.base_path.as_ref(), target_directory) {
+            (Some(base), Some(target)) => {
+                // Expand tilde in base_path
+                let expanded_base = shellexpand::tilde(base).to_string();
+                let base_path = PathBuf::from(&expanded_base);
+
+                // Expand tilde in target if present
+                let expanded_target = shellexpand::tilde(target).to_string();
+                let target_path = PathBuf::from(&expanded_target);
+
+                // If target is absolute, use it as-is
+                if target_path.is_absolute() {
+                    Some(expanded_target)
+                } else {
+                    // Combine base_path with relative target
+                    Some(base_path.join(target_path).to_string_lossy().to_string())
+                }
+            }
+            (Some(base), None) => {
+                // Only base_path is set
+                Some(shellexpand::tilde(base).to_string())
+            }
+            (None, Some(target)) => {
+                // Only target is set
+                Some(shellexpand::tilde(target).to_string())
+            }
+            (None, None) => None,
+        }
     }
 }
 
@@ -108,5 +145,97 @@ mod tests {
         let config: Config = toml::from_str(toml).unwrap();
         assert_eq!(config.date_formats.len(), 3);
         assert_eq!(config.date_formats[0], "%Y-%m-%d");
+    }
+
+    #[test]
+    fn test_resolve_target_path_with_base_and_relative_target() {
+        let toml = r#"
+            base_path = "/home/user/Documents"
+
+            [categories.test]
+            name = "Test"
+            target_directory = "Administrative"
+
+            [categories.test.types.doc]
+            name = "Document"
+            descriptions = ["Test"]
+            require_entity = false
+        "#;
+
+        let config: Config = toml::from_str(toml).unwrap();
+        let result = config.resolve_target_path(Some("Administrative"));
+        assert_eq!(result, Some("/home/user/Documents/Administrative".to_string()));
+    }
+
+    #[test]
+    fn test_resolve_target_path_with_base_and_absolute_target() {
+        let toml = r#"
+            base_path = "/home/user/Documents"
+
+            [categories.test]
+            name = "Test"
+
+            [categories.test.types.doc]
+            name = "Document"
+            descriptions = ["Test"]
+            require_entity = false
+        "#;
+
+        let config: Config = toml::from_str(toml).unwrap();
+        let result = config.resolve_target_path(Some("/absolute/path"));
+        assert_eq!(result, Some("/absolute/path".to_string()));
+    }
+
+    #[test]
+    fn test_resolve_target_path_with_base_only() {
+        let toml = r#"
+            base_path = "/home/user/Documents"
+
+            [categories.test]
+            name = "Test"
+
+            [categories.test.types.doc]
+            name = "Document"
+            descriptions = ["Test"]
+            require_entity = false
+        "#;
+
+        let config: Config = toml::from_str(toml).unwrap();
+        let result = config.resolve_target_path(None);
+        assert_eq!(result, Some("/home/user/Documents".to_string()));
+    }
+
+    #[test]
+    fn test_resolve_target_path_without_base() {
+        let toml = r#"
+            [categories.test]
+            name = "Test"
+
+            [categories.test.types.doc]
+            name = "Document"
+            descriptions = ["Test"]
+            require_entity = false
+        "#;
+
+        let config: Config = toml::from_str(toml).unwrap();
+        let result = config.resolve_target_path(Some("Documents/Test"));
+        assert_eq!(result, Some("Documents/Test".to_string()));
+    }
+
+    #[test]
+    fn test_resolve_target_path_with_neither() {
+        let toml = r#"
+            [categories.test]
+            name = "Test"
+
+            [categories.test.types.doc]
+            name = "Document"
+            descriptions = ["Test"]
+            require_entity = false
+        "#;
+
+        let config: Config = toml::from_str(toml).unwrap();
+        let result = config.resolve_target_path(None);
+        assert_eq!(result, None);
     }
 }

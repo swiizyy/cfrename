@@ -1,6 +1,15 @@
 # Example configuration for cfrename
 # Copy this file to ~/.config/cfrename/config.toml and customize it
 
+# =============================================================================
+# GLOBAL SETTINGS
+# =============================================================================
+
+# Base path for all document organization (optional)
+# If set, category target_directory paths will be relative to this base path
+# Supports tilde (~) expansion for home directory
+base_path = "~/Documents"
+
 # Date input formats (optional)
 # Defines the formats accepted when entering dates interactively
 # The first format is used as the default display format
@@ -11,40 +20,52 @@ date_formats = [
     "%d-%m-%Y",    # DD-MM-YYYY
 ]
 
+# =============================================================================
+# CATEGORIES
+# =============================================================================
+# Each category can have a target_directory:
+#   - If base_path is set and target_directory is relative → combined
+#     Example: base_path="~/Documents" + target_directory="Administrative"
+#              → ~/Documents/Administrative
+#   - If target_directory is absolute → used as-is (base_path ignored)
+#   - If target_directory is omitted → files stay in source directory
+# =============================================================================
+
 # ============================================================================
 # ADMINISTRATIVE CATEGORY
 # ============================================================================
 
 [categories.administrative]
 name = "Administrative"
-target_directory = "~/Documents/Administrative"
+# Relative path (combined with base_path if set)
+target_directory = "Administrative"
 
 # Tax documents
 [categories.administrative.types.tax]
 name = "Tax"
-descriptions = ["Notice", "Declaration", "Receipt"]
+descriptions = ["Notice", "Declaration", "Receipt", "Refund"]
 require_entity = false
 
 # Bank documents
 [categories.administrative.types.bank]
 name = "Bank"
-descriptions = ["Statement", "IBAN", "Contract"]
+descriptions = ["Statement", "IBAN", "Contract", "Card"]
 require_entity = true
-entities = ["BNP", "Credit Agricole", "Societe Generale"]
+entities = ["BNP", "Credit Agricole", "Societe Generale", "Revolut"]
 
 # Insurance documents
 [categories.administrative.types.insurance]
 name = "Insurance"
-descriptions = ["Policy", "Claim", "Certificate"]
+descriptions = ["Policy", "Claim", "Certificate", "Invoice"]
 require_entity = true
-entities = ["AXA", "Allianz", "Generali"]
+entities = ["AXA", "Allianz", "Generali", "MAIF"]
 
 # Utilities
 [categories.administrative.types.utilities]
 name = "Utilities"
 descriptions = ["Bill", "Contract", "Statement"]
 require_entity = true
-entities = ["Electricity", "Water", "Gas", "Internet"]
+entities = ["Electricity", "Water", "Gas", "Internet", "Phone"]
 
 # ============================================================================
 # PROFESSIONAL CATEGORY
@@ -52,25 +73,26 @@ entities = ["Electricity", "Water", "Gas", "Internet"]
 
 [categories.professional]
 name = "Professional"
-target_directory = "~/Documents/Professional"
+# Relative path (combined with base_path)
+target_directory = "Professional"
 
 # Work documents
 [categories.professional.types.work]
 name = "Work"
-descriptions = ["Permanent Contract", "Fixed-Term Contract", "Amendment", "Payslip"]
+descriptions = ["Permanent Contract", "Fixed-Term Contract", "Amendment", "Payslip", "Resignation"]
 require_entity = true
 entities = ["ACME", "TechCorp", "GlobalServices"]
 
 # Training documents
 [categories.professional.types.training]
 name = "Training"
-descriptions = ["Certificate", "Diploma", "Program"]
+descriptions = ["Certificate", "Diploma", "Program", "Attendance"]
 require_entity = false
 
 # Business documents
 [categories.professional.types.business]
 name = "Business"
-descriptions = ["Invoice", "Quote", "Purchase Order"]
+descriptions = ["Invoice", "Quote", "Purchase Order", "Receipt"]
 require_entity = true
 entities = ["Client A", "Client B", "Client C"]
 
@@ -80,7 +102,8 @@ entities = ["Client A", "Client B", "Client C"]
 
 [categories.medical]
 name = "Medical"
-target_directory = "~/Documents/Medical"
+# Relative path (combined with base_path)
+target_directory = "Medical"
 
 # Prescriptions
 [categories.medical.types.prescription]
@@ -91,13 +114,19 @@ require_entity = false
 # Lab results
 [categories.medical.types.lab]
 name = "Lab"
-descriptions = ["Blood Test", "Radiology", "Other"]
+descriptions = ["Blood Test", "Radiology", "Urine Test", "Other"]
 require_entity = false
 
 # Medical reports
 [categories.medical.types.report]
 name = "Report"
-descriptions = ["Annual Checkup", "Specialist Visit", "Emergency"]
+descriptions = ["Annual Checkup", "Specialist Visit", "Emergency", "Surgery"]
+require_entity = false
+
+# Vaccinations
+[categories.medical.types.vaccination]
+name = "Vaccination"
+descriptions = ["Certificate", "Record", "Appointment"]
 require_entity = false
 
 # ============================================================================
@@ -106,22 +135,56 @@ require_entity = false
 
 [categories.personal]
 name = "Personal"
-target_directory = "~/Documents/Personal"
+# Relative path (combined with base_path)
+target_directory = "Personal"
 
 # ID documents
 [categories.personal.types.id]
 name = "ID"
-descriptions = ["Passport", "ID Card", "Driver License"]
+descriptions = ["Passport", "ID Card", "Driver License", "Birth Certificate"]
 require_entity = false
 
 # Receipts
 [categories.personal.types.receipt]
 name = "Receipt"
-descriptions = ["Purchase", "Warranty", "Return"]
+descriptions = ["Purchase", "Warranty", "Return", "Gift"]
 require_entity = false
 
 # Legal documents
 [categories.personal.types.legal]
 name = "Legal"
-descriptions = ["Contract", "Power of Attorney", "Will"]
+descriptions = ["Contract", "Power of Attorney", "Will", "Deed"]
 require_entity = false
+
+# Travel documents
+[categories.personal.types.travel]
+name = "Travel"
+descriptions = ["Ticket", "Booking", "Visa", "Insurance"]
+require_entity = false
+
+# =============================================================================
+# EXAMPLE: Category with absolute path (ignores base_path)
+# =============================================================================
+
+# [categories.archived]
+# name = "Archived"
+# # Absolute path - base_path will be ignored for this category
+# target_directory = "/mnt/backup/documents/archived"
+#
+# [categories.archived.types.old]
+# name = "Old Documents"
+# descriptions = ["Archive"]
+# require_entity = false
+
+# =============================================================================
+# EXAMPLE: Category without target_directory (stays in source folder)
+# =============================================================================
+
+# [categories.temporary]
+# name = "Temporary"
+# # No target_directory - files stay where they are, just renamed
+#
+# [categories.temporary.types.misc]
+# name = "Miscellaneous"
+# descriptions = ["Temporary", "Draft", "Notes"]
+# require_entity = false

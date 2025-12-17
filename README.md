@@ -92,10 +92,11 @@ The tool's behavior is entirely driven by an external configuration file.
 ```
 
 The configuration defines:
+- Base path for document organization (optional)
 - Categories
 - Document types
 - Allowed descriptions
-- Target directories
+- Target directories (can be relative to base path)
 - Required fields (e.g., mandatory entity)
 - Date input formats (output always uses YYYY-MM-DD)
 
@@ -130,6 +131,7 @@ mkdir -p ~/.config/cfrename
 cp config.example.toml ~/.config/cfrename/config.toml
 
 # Edit the configuration to match your needs
+# Set base_path to your documents folder and customize categories
 nano ~/.config/cfrename/config.toml
 
 # Use the tool

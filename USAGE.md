@@ -262,6 +262,23 @@ Operation cancelled.
 
 The configuration file uses TOML format with the following structure:
 
+### Base path (optional)
+
+```toml
+base_path = "~/Documents"
+```
+
+- Defines the root directory for document organization
+- Supports tilde (`~`) expansion for home directory
+- Category `target_directory` paths will be relative to this base path
+- If a category has an absolute path, base_path is ignored for that category
+- If omitted, category paths work as before (absolute or relative to source)
+
+**Benefits:**
+- Centralized configuration - change base path once instead of in every category
+- Cleaner category definitions with relative paths
+- Easy to move your entire document structure to a new location
+
 ### Date formats (optional)
 
 ```toml
@@ -282,12 +299,16 @@ date_formats = [
 ```toml
 [categories.category_key]
 name = "Display Name"
-target_directory = "~/path/to/directory"  # Optional
+target_directory = "Administrative"  # Optional, can be relative or absolute
 ```
 
 - `category_key`: Internal identifier (lowercase, no spaces)
 - `name`: Display name shown in the CLI
-- `target_directory`: Optional destination directory (supports `~` expansion)
+- `target_directory`: Optional destination directory
+  - If `base_path` is set and this is a relative path → combined with base_path
+  - If this is an absolute path → used as-is (base_path ignored)
+  - If omitted → files stay in source directory
+  - Supports `~` expansion for home directory
 
 ### Document type definition
 
@@ -308,11 +329,15 @@ entities = ["Entity1", "Entity2"]  # Required if require_entity = true
 ### Complete example
 
 ```toml
+# Global settings
+base_path = "~/Documents"
 date_formats = ["%Y-%m-%d", "%d/%m/%Y"]
 
 [categories.administrative]
 name = "Administrative"
-target_directory = "~/Documents/Administrative"
+# Relative path - will be combined with base_path
+# Result: ~/Documents/Administrative
+target_directory = "Administrative"
 
 [categories.administrative.types.tax]
 name = "Tax"
@@ -324,6 +349,16 @@ name = "Bank"
 descriptions = ["Statement", "IBAN", "Contract"]
 require_entity = true
 entities = ["BNP", "Credit Agricole", "Societe Generale"]
+
+[categories.archived]
+name = "Archived"
+# Absolute path - base_path is ignored for this category
+target_directory = "/mnt/backup/documents/archived"
+
+[categories.archived.types.old]
+name = "Old Documents"
+descriptions = ["Archive"]
+require_entity = false
 ```
 
 See `config.example.toml` for a complete configuration example.
@@ -544,9 +579,12 @@ done
 
 ### Target directories
 
+- Use `base_path` to define your root documents folder once
+- Keep category paths relative for easier maintenance
 - Organize target directories by category
 - Use home directory expansion (`~`) for portability
 - Create a logical hierarchy that matches your needs
+- Use absolute paths for special cases (like archived or backup locations)
 
 ### Maintenance
 
