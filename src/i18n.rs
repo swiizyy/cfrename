@@ -73,6 +73,10 @@ pub struct Messages {
     pub error_config_not_found: &'static str,
     pub error_expected_location: &'static str,
     pub error_create_config: &'static str,
+
+    // Config creation messages
+    pub prompt_create_default_config: &'static str,
+    pub success_config_created: &'static str,
     pub error_file_not_exist: &'static str,
     pub error_not_a_file: &'static str,
     pub error_invalid_date: &'static str,
@@ -113,6 +117,8 @@ impl Messages {
             error_config_not_found: "Error: Configuration file not found.",
             error_expected_location: "Expected location:",
             error_create_config: "Please create a configuration file. See the example configuration.",
+            prompt_create_default_config: "Would you like to create a default configuration file?",
+            success_config_created: "✓ Default configuration file created successfully!",
             error_file_not_exist: "File does not exist:",
             error_not_a_file: "Path is not a file:",
             error_invalid_date: "Invalid date format. Expected one of:",
@@ -144,6 +150,8 @@ impl Messages {
             error_config_not_found: "Erreur : Fichier de configuration introuvable.",
             error_expected_location: "Emplacement attendu :",
             error_create_config: "Veuillez créer un fichier de configuration. Consultez l'exemple de configuration.",
+            prompt_create_default_config: "Voulez-vous créer un fichier de configuration par défaut ?",
+            success_config_created: "✓ Fichier de configuration par défaut créé avec succès !",
             error_file_not_exist: "Le fichier n'existe pas :",
             error_not_a_file: "Le chemin n'est pas un fichier :",
             error_invalid_date: "Format de date invalide. Formats attendus :",

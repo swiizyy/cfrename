@@ -85,11 +85,11 @@ Navigation is guided, without dangerous free-form input.
 
 ## 🧾 Configuration
 
-The tool's behavior is entirely driven by an external configuration file.
+The tool's behavior is entirely driven by an external configuration file stored in platform-specific standard directories:
 
-```
-~/.config/cfrename/config.toml
-```
+- **Linux**: `~/.config/cfrename/config.toml`
+- **macOS**: `~/Library/Application Support/io.swiizyy.cfrename/config.toml`
+- **Windows**: `%APPDATA%\swiizyy\cfrename\config.toml`
 
 The configuration defines:
 - Language (English or French)
@@ -106,6 +106,7 @@ The configuration defines:
 ## ⚙️ Features
 
 - **Multilingual interface** - English and French support
+- **Automatic configuration setup** - Creates default config on first run
 - Interactive CLI
 - Keyboard navigation
 - Guided hierarchical selection
@@ -128,16 +129,17 @@ See the [USAGE.md](USAGE.md) file for complete installation and usage instructio
 # Build the project
 cargo build --release
 
-# Copy the example configuration
+# On first run, cfrename will prompt you to create a default configuration
+# Just run the tool and answer 'Yes' when prompted:
+./target/release/cfrename <file>
+
+# Or manually copy the example configuration
 mkdir -p ~/.config/cfrename
 cp config.example.toml ~/.config/cfrename/config.toml
 
 # Edit the configuration to match your needs
 # Set language (english/french), base_path, and customize categories
 nano ~/.config/cfrename/config.toml
-
-# Use the tool
-./target/release/cfrename <file>
 ```
 
 ### Example Usage
@@ -156,6 +158,7 @@ cfrename ~/Downloads/document.pdf --config /path/to/config.toml
 
 Functional MVP with core features implemented:
 - ✓ Multilingual support (English/French)
+- ✓ Automatic configuration setup on first run
 - ✓ Interactive CLI interface
 - ✓ Guided keyboard navigation
 - ✓ External configuration (TOML)

@@ -113,15 +113,17 @@ impl Config {
 
     /// Returns the default configuration file path.
     ///
-    /// On Unix systems: `~/.config/cfrename/config.toml`
-    /// On Windows: `%APPDATA%\cfrename\config.toml`
+    /// Uses platform-specific standard directories:
+    /// - Linux: `~/.config/cfrename/config.toml`
+    /// - Windows: `%APPDATA%\swiizyy\cfrename\config.toml`
+    /// - macOS: `~/Library/Application Support/io.swiizyy.cfrename/config.toml`
     ///
     /// # Errors
     ///
     /// Returns an error if the config directory cannot be determined
     /// (e.g., HOME environment variable not set)
     pub fn default_path() -> Result<PathBuf> {
-        let config_dir = directories::ProjectDirs::from("", "", "cfrename")
+        let config_dir = directories::ProjectDirs::from("io", "swiizyy", "cfrename")
             .context("Failed to determine config directory")?
             .config_dir()
             .to_path_buf();
@@ -255,6 +257,39 @@ impl Config {
             }
             (None, None) => None,
         }
+    }
+
+    /// Creates a default configuration file at the default location.
+    ///
+    /// This method creates the config directory if it doesn't exist and writes
+    /// a default configuration file based on `config.example.toml`.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - The config directory cannot be created
+    /// - The config file cannot be written
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// Config::create_default_config()?;
+    /// ```
+    pub fn create_default_config() -> Result<PathBuf> {
+        let config_path = Self::default_path()?;
+
+        // Create parent directory if it doesn't exist
+        if let Some(parent) = config_path.parent() {
+            fs::create_dir_all(parent)
+                .with_context(|| format!("Failed to create config directory: {}", parent.display()))?;
+        }
+
+        // Write default config content
+        let default_config = include_str!("../config.example.toml");
+        fs::write(&config_path, default_config)
+            .with_context(|| format!("Failed to write config file: {}", config_path.display()))?;
+
+        Ok(config_path)
     }
 }
 

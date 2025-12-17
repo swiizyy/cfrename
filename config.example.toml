@@ -1,5 +1,10 @@
 # Example configuration for cfrename
-# Copy this file to ~/.config/cfrename/config.toml and customize it
+# On first run, cfrename will offer to create this file automatically.
+#
+# Platform-specific config locations:
+# - Linux:   ~/.config/cfrename/config.toml
+# - macOS:   ~/Library/Application Support/io.swiizyy.cfrename/config.toml
+# - Windows: %APPDATA%\swiizyy\cfrename\config.toml
 
 # =============================================================================
 # GLOBAL SETTINGS
