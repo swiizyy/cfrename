@@ -2,68 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.1] - 2025-12-15
+# [0.3.0] - (2025-12-17)
 
-### Changed
-- Updated license field in Cargo.toml to "MIT"
+## 📝 Documentation
 
-## [0.2.0] - 2025-12-15
+- Expand module-level documentation and add doc comments ([3e610c4](https://github.com/swiizyy/cfrename/commit/3e610c4bea6258e6f0f4070562ca72e3aae36e50))
+- Translate docs to English and expand documentation ([376b484](https://github.com/swiizyy/cfrename/commit/376b484812234760d6dd1ae0d616efc6c748ce9a))
 
-### Added
-- Configurable date input formats support
-    - Users can now specify accepted date formats in configuration file
-    - Default formats: `%Y-%m-%d`, `%d/%m/%Y`, `%d-%m-%Y`, `%Y%m%d`
-    - Interactive prompt shows the first configured format as default
-    - Parser attempts each configured format until successful match`
-- Unit tests for date format parsing and default values
-- Documentation updates for new date format feature`
+## 🚀 Features
 
-### Changed
-- Updated `CLAUDE.md` with date format configuration details
-- Enhanced `USAGE.md` with date format examples
-- Expanded `config.example.toml` with date format configuration
+- Implement multilingual support with English and French translations ([7a38303](https://github.com/swiizyy/cfrename/commit/7a383037996f8108a148143b4132c4b8fd7ba69b))
+- Add `base_path` support for centralized document organization configuration ([d1560be](https://github.com/swiizyy/cfrename/commit/d1560be867327ab6d3178083795f4adc9857db0f))
 
-## [0.1.1] - 2025-12-15
-
-### Changed
-- Updated dependency versions to latest stable releases
-
-## [0.1.0] - 2025-12-15
-
-### Added
-- Initial MVP release of cfrename CLI tool
-- Core filename standardization functionality
-    - Standard format: `YYYY-MM-DD_TYPE_DESCRIPTION.ext`
-    - Extended format: `YYYY-MM-DD_TYPE_ENTITY_DESCRIPTION.ext`
-- Configuration system via TOML files
-    - Hierarchical document organization (Category → Type → Description)
-    - Configurable categories, types, and descriptions
-    - Entity requirements per document type
-    - Target directory configuration
-- Interactive CLI interface
-    - Guided step-by-step selection process
-    - Keyboard navigation using dialoguer
-    - Strict validation (no free-form input for structured fields)
-    - Pre-action confirmation
-- File operations module
-    - Safe rename operations with preview
-    - Automatic directory creation
-    - Source/target validation
-- Comprehensive documentation
-    - README with project overview
-    - USAGE guide with examples
-    - CLAUDE.md with development guidelines
-    - Example configuration file
-- MIT License
-- Project metadata and repository setup
-
-### Technical Details
-- Built with Rust 2024 edition
-- Dependencies: clap, dialoguer, serde, toml, chrono, anyhow, directories, shellexpand
-- Modular architecture with separation of concerns
-    - `config.rs`: Configuration loading and parsing
-    - `interactive.rs`: CLI interaction layer
-    - `naming.rs`: Filename generation logic
-    - `operations.rs`: File system operations
-    - `main.rs`: Application entry point
 

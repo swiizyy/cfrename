@@ -72,3 +72,6 @@ sort_commits = "newest"
 [remote.github]
 owner = "swiizyy"
 repo = "cfrename"
+
+[bump]
+initial_tag = "v0.3.0"
