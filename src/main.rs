@@ -23,16 +23,13 @@ fn main() -> Result<()> {
 
     let config = if let Some(config_path) = cli.config {
         config::Config::load(&config_path)?
+    } else if let Ok(config) = config::Config::load_default() {
+        config
     } else {
-        match config::Config::load_default() {
-            Ok(config) => config,
-            Err(_) => {
-                eprintln!("Error: Configuration file not found.");
-                eprintln!("Expected location: {}", config::Config::default_path()?.display());
-                eprintln!("\nPlease create a configuration file. See the example configuration.");
-                std::process::exit(1);
-            }
-        }
+        eprintln!("Error: Configuration file not found.");
+        eprintln!("Expected location: {}", config::Config::default_path()?.display());
+        eprintln!("\nPlease create a configuration file. See the example configuration.");
+        std::process::exit(1);
     };
 
     if !cli.file.exists() {
@@ -69,7 +66,7 @@ fn main() -> Result<()> {
     let operation = operations::FileOperation::new(cli.file, target_path);
     operation.preview();
 
-    if operation.confirm()? {
+    if operations::FileOperation::confirm()? {
         operation.execute()?;
     } else {
         println!("Operation cancelled.");
