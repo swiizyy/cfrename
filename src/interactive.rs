@@ -176,17 +176,33 @@ impl InteractiveSession {
             .default(default_date)
             .interact_text()?;
 
-        // Try to parse with each configured format
-        for format in &self.config.date_formats {
-            if let Ok(date) = NaiveDate::parse_from_str(&date_str, format) {
+        Self::parse_date_with_formats(&date_str, &self.config.date_formats)
+            .with_context(|| format!("{} {formats_display}", self.messages.error_invalid_date))
+    }
+
+    /// Parses a date string using multiple format patterns.
+    ///
+    /// Tries each format in order until one succeeds.
+    ///
+    /// # Arguments
+    ///
+    /// * `date_str` - The date string to parse
+    /// * `formats` - List of format patterns to try (e.g., "%Y-%m-%d", "%d/%m/%Y")
+    ///
+    /// # Returns
+    ///
+    /// The parsed date if any format matches
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if none of the formats can parse the date string
+    fn parse_date_with_formats(date_str: &str, formats: &[String]) -> Result<NaiveDate> {
+        for format in formats {
+            if let Ok(date) = NaiveDate::parse_from_str(date_str, format) {
                 return Ok(date);
             }
         }
-
-        anyhow::bail!(
-            "{} {formats_display}",
-            self.messages.error_invalid_date
-        )
+        anyhow::bail!("Could not parse date '{}' with any of the provided formats", date_str)
     }
 }
 
