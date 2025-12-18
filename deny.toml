@@ -1,0 +1,83 @@
+# cargo-deny configuration
+# https://embarkstudios.github.io/cargo-deny/
+
+# Security advisories configuration
+[advisories]
+# Deny crates with security vulnerabilities
+vulnerability = "deny"
+
+# Warn about unmaintained crates
+unmaintained = "warn"
+
+# Deny yanked crates
+yanked = "deny"
+
+# Warn about notices (informational advisories)
+notice = "warn"
+
+# Ignore specific advisories (add IDs as needed)
+ignore = [
+    # Example: "RUSTSEC-2020-0001",
+]
+
+# License policy configuration
+[licenses]
+# Deny packages without a license
+unlicensed = "deny"
+
+# List of allowed licenses
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Unicode-DFS-2016",
+    "0BSD",
+    "Zlib",
+]
+
+# List of explicitly denied licenses
+deny = [
+    "GPL-2.0",
+    "GPL-3.0",
+    "AGPL-3.0",
+]
+
+# Licenses that need explicit approval
+# copyleft = "deny"
+
+# Ban configuration
+[bans]
+# Warn when multiple versions of the same crate are found
+multiple-versions = "warn"
+
+# Warn about wildcards in dependencies
+wildcards = "warn"
+
+# Allow these crates to have multiple versions
+skip = [
+    # Example: { name = "windows-sys", version = "*" },
+]
+
+# Deny specific crates
+deny = [
+    # Example: { name = "bad-crate", version = "*" },
+]
+
+# Sources configuration
+[sources]
+# Deny crates from unknown registries
+unknown-registry = "deny"
+
+# Deny crates from unknown git sources
+unknown-git = "deny"
+
+# Allow crates from crates.io
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+
+# Allow specific git sources if needed
+allow-git = [
+    # Example: "https://github.com/user/repo",
+]
