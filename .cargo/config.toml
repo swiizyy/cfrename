@@ -1,0 +1,29 @@
+# Cargo configuration for cfrename project
+
+# Code coverage instrumentation configuration
+# Used by cargo-llvm-cov for generating coverage reports
+[build]
+# Enable coverage instrumentation for all targets
+# This allows cargo-llvm-cov to collect coverage data
+rustflags = ["-C", "instrument-coverage"]
+
+# Platform-specific coverage configuration
+# Ensures coverage works correctly across different operating systems
+
+[target.x86_64-unknown-linux-gnu]
+rustflags = ["-C", "instrument-coverage"]
+
+[target.x86_64-apple-darwin]
+rustflags = ["-C", "instrument-coverage"]
+
+[target.aarch64-apple-darwin]
+rustflags = ["-C", "instrument-coverage"]
+
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "instrument-coverage"]
+
+# Note: To generate coverage reports, use:
+#   cargo install cargo-llvm-cov
+#   cargo llvm-cov --html          # Generate HTML report
+#   cargo llvm-cov --open          # Generate and open HTML report
+#   cargo llvm-cov --lcov          # Generate LCOV format for CI
