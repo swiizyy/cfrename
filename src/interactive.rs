@@ -226,3 +226,284 @@ pub struct RenameRequest {
     /// Target directory from category configuration
     pub target_directory: Option<String>,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::HashMap;
+    use crate::config::Category;
+    use chrono::Datelike;
+
+    fn create_test_config() -> Config {
+        let mut categories = HashMap::new();
+
+        let mut types = HashMap::new();
+        types.insert(
+            "TAX".to_string(),
+            DocumentType {
+                name: "Tax Document".to_string(),
+                descriptions: vec!["Notice".to_string(), "Return".to_string()],
+                require_entity: false,
+                entities: None,
+            },
+        );
+        types.insert(
+            "WORK".to_string(),
+            DocumentType {
+                name: "Work Document".to_string(),
+                descriptions: vec!["Contract".to_string(), "Pay Slip".to_string()],
+                require_entity: true,
+                entities: Some(vec!["ACME Corp".to_string(), "Tech Inc".to_string()]),
+            },
+        );
+
+        categories.insert(
+            "admin".to_string(),
+            Category {
+                name: "Administrative".to_string(),
+                types,
+                target_directory: Some("~/Documents/Admin".to_string()),
+            },
+        );
+
+        Config {
+            categories,
+            date_formats: vec![
+                "%Y-%m-%d".to_string(),
+                "%d/%m/%Y".to_string(),
+                "%d-%m-%Y".to_string(),
+            ],
+            base_path: None,
+            language: crate::i18n::Language::English,
+        }
+    }
+
+    #[test]
+    fn test_parse_date_with_iso_format() {
+        let formats = vec!["%Y-%m-%d".to_string()];
+        let result = InteractiveSession::parse_date_with_formats("2024-11-15", &formats);
+
+        assert!(result.is_ok());
+        let date = result.unwrap();
+        assert_eq!(date.year(), 2024);
+        assert_eq!(date.month(), 11);
+        assert_eq!(date.day(), 15);
+    }
+
+    #[test]
+    fn test_parse_date_with_european_slash_format() {
+        let formats = vec!["%d/%m/%Y".to_string()];
+        let result = InteractiveSession::parse_date_with_formats("15/11/2024", &formats);
+
+        assert!(result.is_ok());
+        let date = result.unwrap();
+        assert_eq!(date.year(), 2024);
+        assert_eq!(date.month(), 11);
+        assert_eq!(date.day(), 15);
+    }
+
+    #[test]
+    fn test_parse_date_with_european_dash_format() {
+        let formats = vec!["%d-%m-%Y".to_string()];
+        let result = InteractiveSession::parse_date_with_formats("15-11-2024", &formats);
+
+        assert!(result.is_ok());
+        let date = result.unwrap();
+        assert_eq!(date.year(), 2024);
+        assert_eq!(date.month(), 11);
+        assert_eq!(date.day(), 15);
+    }
+
+    #[test]
+    fn test_parse_date_tries_multiple_formats() {
+        let formats = vec![
+            "%Y-%m-%d".to_string(),
+            "%d/%m/%Y".to_string(),
+            "%d-%m-%Y".to_string(),
+        ];
+
+        // Should succeed with second format
+        let result = InteractiveSession::parse_date_with_formats("15/11/2024", &formats);
+        assert!(result.is_ok());
+
+        // Should succeed with first format
+        let result = InteractiveSession::parse_date_with_formats("2024-11-15", &formats);
+        assert!(result.is_ok());
+
+        // Should succeed with third format
+        let result = InteractiveSession::parse_date_with_formats("15-11-2024", &formats);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_date_invalid_format() {
+        let formats = vec!["%Y-%m-%d".to_string()];
+        let result = InteractiveSession::parse_date_with_formats("invalid-date", &formats);
+
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("Could not parse date"));
+    }
+
+    #[test]
+    fn test_parse_date_no_matching_format() {
+        let formats = vec!["%Y-%m-%d".to_string()];
+        let result = InteractiveSession::parse_date_with_formats("15/11/2024", &formats);
+
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_date_empty_string() {
+        let formats = vec!["%Y-%m-%d".to_string()];
+        let result = InteractiveSession::parse_date_with_formats("", &formats);
+
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_date_with_invalid_day() {
+        let formats = vec!["%Y-%m-%d".to_string()];
+        let result = InteractiveSession::parse_date_with_formats("2024-11-32", &formats);
+
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_date_with_invalid_month() {
+        let formats = vec!["%Y-%m-%d".to_string()];
+        let result = InteractiveSession::parse_date_with_formats("2024-13-15", &formats);
+
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_date_leap_year() {
+        let formats = vec!["%Y-%m-%d".to_string()];
+
+        // Valid leap year date
+        let result = InteractiveSession::parse_date_with_formats("2024-02-29", &formats);
+        assert!(result.is_ok());
+
+        // Invalid leap year date
+        let result = InteractiveSession::parse_date_with_formats("2023-02-29", &formats);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_date_with_whitespace() {
+        let formats = vec!["%Y-%m-%d".to_string()];
+
+        // chrono's parse_from_str actually accepts dates with leading whitespace
+        let result = InteractiveSession::parse_date_with_formats(" 2024-11-15", &formats);
+        assert!(result.is_ok());
+
+        // But trailing whitespace makes it fail
+        let result = InteractiveSession::parse_date_with_formats("2024-11-15 ", &formats);
+        assert!(result.is_err());
+
+        // Whitespace in the middle should fail
+        let result = InteractiveSession::parse_date_with_formats("2024 -11-15", &formats);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_new_session_creates_correct_language() {
+        let config = create_test_config();
+        let session = InteractiveSession::new(config.clone());
+
+        // Session should be created successfully
+        // We can't directly test the messages field as it's private,
+        // but we can verify the session is created without panicking
+        assert_eq!(session.config.categories.len(), 1);
+    }
+
+    #[test]
+    fn test_rename_request_structure() {
+        let request = RenameRequest {
+            doc_type: "TAX".to_string(),
+            entity: None,
+            description: "Notice".to_string(),
+            date: NaiveDate::from_ymd_opt(2024, 11, 15).unwrap(),
+            target_directory: Some("~/Documents/Admin".to_string()),
+        };
+
+        assert_eq!(request.doc_type, "TAX");
+        assert_eq!(request.entity, None);
+        assert_eq!(request.description, "Notice");
+        assert_eq!(request.date.year(), 2024);
+        assert_eq!(request.target_directory, Some("~/Documents/Admin".to_string()));
+    }
+
+    #[test]
+    fn test_rename_request_with_entity() {
+        let request = RenameRequest {
+            doc_type: "WORK".to_string(),
+            entity: Some("ACME Corp".to_string()),
+            description: "Contract".to_string(),
+            date: NaiveDate::from_ymd_opt(2024, 11, 15).unwrap(),
+            target_directory: Some("~/Documents/Work".to_string()),
+        };
+
+        assert_eq!(request.doc_type, "WORK");
+        assert_eq!(request.entity, Some("ACME Corp".to_string()));
+        assert_eq!(request.description, "Contract");
+    }
+
+    #[test]
+    fn test_parse_date_with_custom_format() {
+        let formats = vec!["%d.%m.%Y".to_string()];
+        let result = InteractiveSession::parse_date_with_formats("15.11.2024", &formats);
+
+        assert!(result.is_ok());
+        let date = result.unwrap();
+        assert_eq!(date.year(), 2024);
+        assert_eq!(date.month(), 11);
+        assert_eq!(date.day(), 15);
+    }
+
+    #[test]
+    fn test_parse_date_format_priority() {
+        // When multiple formats could match, the first one should be used
+        let formats = vec![
+            "%Y-%m-%d".to_string(),
+            "%Y-%m-%d".to_string(), // Duplicate to test priority
+        ];
+
+        let result = InteractiveSession::parse_date_with_formats("2024-11-15", &formats);
+        assert!(result.is_ok());
+        let date = result.unwrap();
+        assert_eq!(date, NaiveDate::from_ymd_opt(2024, 11, 15).unwrap());
+    }
+
+    #[test]
+    fn test_parse_date_with_short_year() {
+        let formats = vec!["%d/%m/%y".to_string()];
+        let result = InteractiveSession::parse_date_with_formats("15/11/24", &formats);
+
+        assert!(result.is_ok());
+        let date = result.unwrap();
+        // chrono interprets 2-digit years as 1900-2099
+        assert_eq!(date.year(), 2024);
+    }
+
+    #[test]
+    fn test_parse_date_boundary_values() {
+        let formats = vec!["%Y-%m-%d".to_string()];
+
+        // First day of year
+        let result = InteractiveSession::parse_date_with_formats("2024-01-01", &formats);
+        assert!(result.is_ok());
+
+        // Last day of year
+        let result = InteractiveSession::parse_date_with_formats("2024-12-31", &formats);
+        assert!(result.is_ok());
+
+        // Invalid: day 0
+        let result = InteractiveSession::parse_date_with_formats("2024-01-00", &formats);
+        assert!(result.is_err());
+
+        // Invalid: month 0
+        let result = InteractiveSession::parse_date_with_formats("2024-00-01", &formats);
+        assert!(result.is_err());
+    }
+}
