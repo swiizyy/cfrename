@@ -3,6 +3,7 @@ mod i18n;
 mod interactive;
 mod naming;
 mod operations;
+mod path_validation;
 
 use anyhow::Result;
 use clap::Parser;
@@ -11,6 +12,7 @@ use std::path::PathBuf;
 
 #[derive(Parser)]
 #[command(name = "cfrename")]
+#[command(version)]
 #[command(about = "CLI tool for standardizing file renaming and organization", long_about = None)]
 struct Cli {
     #[arg(help = "Path to the file to rename")]
@@ -18,6 +20,9 @@ struct Cli {
 
     #[arg(short, long, help = "Path to configuration file")]
     config: Option<PathBuf>,
+
+    #[arg(long, help = "Allow following symbolic links (disabled by default for security)")]
+    follow_symlinks: bool,
 }
 
 fn main() -> Result<()> {
@@ -53,13 +58,8 @@ fn main() -> Result<()> {
 
     let messages = i18n::Messages::for_language(config.language);
 
-    if !cli.file.exists() {
-        anyhow::bail!("{} {}", messages.error_file_not_exist, cli.file.display());
-    }
-
-    if !cli.file.is_file() {
-        anyhow::bail!("{} {}", messages.error_not_a_file, cli.file.display());
-    }
+    // Note: File validation (exists, is_file, symlink detection) is now performed
+    // by PathValidator in FileOperation::new()
 
     let session = interactive::InteractiveSession::new(config.clone());
     let request = session.run()?;
@@ -84,7 +84,12 @@ fn main() -> Result<()> {
         resolved_target.as_deref(),
     );
 
-    let operation = operations::FileOperation::new(cli.file, target_path, messages);
+    let operation = operations::FileOperation::new(
+        cli.file,
+        target_path,
+        messages,
+        cli.follow_symlinks,
+    )?;
     operation.preview();
 
     if operation.confirm()? {

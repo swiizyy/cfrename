@@ -5,6 +5,7 @@
 //! descriptions, entities, and date formats.
 
 use crate::i18n::Language;
+use crate::path_validation::PathValidator;
 use anyhow::{Context, Result};
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -229,8 +230,17 @@ impl Config {
     /// // → Some("Documents/Test")
     /// ```
     pub fn resolve_target_path(&self, target_directory: Option<&str>) -> Option<String> {
+        let validator = PathValidator::new(false);
+
         match (self.base_path.as_ref(), target_directory) {
             (Some(base), Some(target)) => {
+                // Security: Check for path traversal in target before processing
+                if validator.contains_path_traversal(target) {
+                    eprintln!("Security warning: Path traversal detected in target directory: {}", target);
+                    eprintln!("Path traversal sequences (..) are not allowed in configuration paths.");
+                    return None;
+                }
+
                 // Expand tilde in base_path
                 let expanded_base = shellexpand::tilde(base).to_string();
                 let base_path = PathBuf::from(&expanded_base);
@@ -239,8 +249,9 @@ impl Config {
                 let expanded_target = shellexpand::tilde(target).to_string();
                 let target_path = PathBuf::from(&expanded_target);
 
-                // If target is absolute, use it as-is
+                // If target is absolute, use it as-is (but log a warning)
                 if target_path.is_absolute() {
+                    eprintln!("Info: Using absolute target path (bypasses base_path): {}", expanded_target);
                     Some(expanded_target)
                 } else {
                     // Combine base_path with relative target
@@ -248,10 +259,22 @@ impl Config {
                 }
             }
             (Some(base), None) => {
+                // Security: Check base_path for traversal
+                if validator.contains_path_traversal(base) {
+                    eprintln!("Security warning: Path traversal detected in base_path: {}", base);
+                    return None;
+                }
+
                 // Only base_path is set
                 Some(shellexpand::tilde(base).to_string())
             }
             (None, Some(target)) => {
+                // Security: Check target for traversal
+                if validator.contains_path_traversal(target) {
+                    eprintln!("Security warning: Path traversal detected in target directory: {}", target);
+                    return None;
+                }
+
                 // Only target is set
                 Some(shellexpand::tilde(target).to_string())
             }
@@ -529,5 +552,94 @@ mod tests {
         let config: Config = toml::from_str(toml).unwrap();
         let result = config.validate();
         assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_reject_path_traversal_in_target() {
+        let toml = r#"
+            base_path = "~/Documents"
+
+            [categories.test]
+            name = "Test"
+            target_directory = "../../../etc"
+
+            [categories.test.types.doc]
+            name = "Document"
+            descriptions = ["Test"]
+            require_entity = false
+        "#;
+
+        let config: Config = toml::from_str(toml).unwrap();
+        let result = config.resolve_target_path(Some("../../../etc"));
+
+        // Path traversal should be rejected
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_reject_path_traversal_in_base_path() {
+        let toml = r#"
+            base_path = "../../etc/passwd"
+
+            [categories.test]
+            name = "Test"
+
+            [categories.test.types.doc]
+            name = "Document"
+            descriptions = ["Test"]
+            require_entity = false
+        "#;
+
+        let config: Config = toml::from_str(toml).unwrap();
+        let result = config.resolve_target_path(None);
+
+        // Path traversal in base_path should be rejected
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_allow_safe_relative_paths() {
+        let toml = r#"
+            base_path = "~/Documents"
+
+            [categories.test]
+            name = "Test"
+
+            [categories.test.types.doc]
+            name = "Document"
+            descriptions = ["Test"]
+            require_entity = false
+        "#;
+
+        let config: Config = toml::from_str(toml).unwrap();
+
+        // Safe relative paths should work
+        let result = config.resolve_target_path(Some("Administrative/Taxes"));
+        assert!(result.is_some());
+        let resolved = result.unwrap();
+        assert!(resolved.contains("Documents"));
+        assert!(resolved.contains("Administrative/Taxes"));
+    }
+
+    #[test]
+    fn test_absolute_path_bypasses_base() {
+        let toml = r#"
+            base_path = "~/Documents"
+
+            [categories.test]
+            name = "Test"
+
+            [categories.test.types.doc]
+            name = "Document"
+            descriptions = ["Test"]
+            require_entity = false
+        "#;
+
+        let config: Config = toml::from_str(toml).unwrap();
+
+        // Absolute paths should bypass base_path
+        let result = config.resolve_target_path(Some("/mnt/backup"));
+        assert!(result.is_some());
+        assert_eq!(result.unwrap(), "/mnt/backup");
     }
 }
